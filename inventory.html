@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchenware Inventory System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: rgba(17, 24, 39, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header Navigation */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .badge-live {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse {
+      width: 6px;
+      height: 6px;
+      background-color: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    /* Top Summary Metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+    }
+
+    .m-items::before { background: var(--primary); }
+    .m-value::before { background: var(--success); }
+    .m-profit::before { background: var(--warning); }
+    .m-alerts::before { background: var(--danger); }
+
+    .metric-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-top: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    @media (min-width: 768px) {
+      .metric-value { font-size: 1.6rem; }
+    }
+
+    /* App Split Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 992px) {
+      .app-layout {
+        grid-template-columns: 340px 1fr;
+      }
+    }
+
+    .glass-box {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Form Design */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    option {
+      background: var(--bg-dark);
+      color: var(--text-main);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 6px;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover { opacity: 0.95; transform: translateY(-1px); }
+
+    /* Product Cards for Mobile & Desktop */
+    .product-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .product-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .product-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .product-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .product-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .pc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .pc-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin: 0 0 4px 0;
+    }
+
+    .pc-category {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .sb-ok { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .sb-low { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .pc-prices {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+    }
+
+    .pc-stock-count {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .pc-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 6px;
+    }
+
+    .btn-act {
+      padding: 9px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: opacity 0.2s ease;
+    }
+
+    .btn-act:hover { opacity: 0.85; }
+    .btn-sale { background: var(--success); }
+    .btn-restock { background: var(--primary); }
+    .btn-del { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">🍳</div>
+        <div>
+          <h1>Kitchenware Inventory</h1>
+        </div>
+      </div>
+      <div class="badge-live">
+        <span class="pulse"></span> System Live
+      </div>
+    </header>
+
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+      <div class="metric-card m-items">
+        <div class="metric-title">Total Products</div>
+        <div class="metric-value" id="total-items">0</div>
+      </div>
+      <div class="metric-card m-value">
+        <div class="metric-title">Stock Value</div>
+        <div class="metric-value" id="total-val">KSh 0</div>
+      </div>
+      <div class="metric-card m-profit">
+        <div class="metric-title">Recorded Profit</div>
+        <div class="metric-value" id="total-profit">KSh 0</div>
+      </div>
+      <div class="metric-card m-alerts">
+        <div class="metric-title">Low Stock Alerts</div>
+        <div class="metric-value" id="low-stock-count">0</div>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="app-layout">
+      <!-- Add Product Form -->
+      <div class="glass-box">
+        <h2 class="section-title">Add New Stock</h2>
+        <form id="product-form" onsubmit="addProduct(event)">
+          <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" id="p-name" placeholder="e.g. Electric Blender 1.5L" required>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="p-category">
+              <option value="Cookware">Cookware</option>
+              <option value="Appliances">Appliances</option>
+              <option value="Tableware">Tableware</option>
+              <option value="Cutlery">Cutlery</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cost Price (KSh)</label>
+              <input type="number" id="p-buy" placeholder="1200" required>
+            </div>
+            <div class="form-group">
+              <label>Sell Price (KSh)</label>
+              <input type="number" id="p-sell" placeholder="2000" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Initial Qty</label>
+              <input type="number" id="p-qty" placeholder="10" required>
+            </div>
+            <div class="form-group">
+              <label>Low Alert Level</label>
+              <input type="number" id="p-reorder" value="5" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">+ Add to Inventory</button>
+        </form>
+      </div>
+
+      <!-- Inventory Catalog -->
+      <div class="glass-box">
+        <div class="section-title">
+          <span>Product Catalog</span>
+          <button style="background:none; border:none; color:var(--primary); font-weight:700; cursor:pointer; font-size:0.8rem;" onclick="resetProfit()">Reset Profit</button>
+        </div>
+        <div class="product-cards-grid" id="inventory-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const defaultData = [
+      { id: 1, name: "Non-Stick Frying Pan 28cm", category: "Cookware", buy: 1200, sell: 2000, qty: 8, reorder: 5 },
+      { id: 2, name: "1.5L Electric Blender", category: "Appliances", buy: 3500, sell: 5500, qty: 3, reorder: 5 },
+      { id: 3, name: "Ceramic Plate Set (6pcs)", category: "Tableware", buy: 1800, sell: 3000, qty: 15, reorder: 5 }
+    ];
+
+    let inventory = JSON.parse(localStorage.getItem('kitchen_inv_v3')) || defaultData;
+    let totalSalesProfit = parseFloat(localStorage.getItem('kitchen_profit_v3')) || 0;
+
+    function renderInventory() {
+      const container = document.getElementById('inventory-list');
+      container.innerHTML = '';
+
+      if (inventory.length === 0) {
+        container.innerHTML = `<div class="empty-state">No products registered yet. Add your first item using the form.</div>`;
+      }
+
+      let totalItems = 0;
+      let totalValue = 0;
+      let lowStockCount = 0;
+
+      inventory.forEach((item, index) => {
+        totalItems += 1;
+        totalValue += (item.sell * item.qty);
+
+        const isLow = item.qty <= item.reorder;
+        if (isLow) lowStockCount += 1;
+
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div>
+            <div class="pc-header">
+              <div>
+                <h3 class="pc-name">${item.name}</h3>
+                <span class="pc-category">${item.category}</span>
+              </div>
+              <span class="status-badge ${isLow ? 'sb-low' : 'sb-ok'}">
+                ${isLow ? 'Low Stock' : 'In Stock'}
+              </span>
+            </div>
+
+            <div class="pc-prices">
+              <div>
+                <span style="color:var(--text-muted); font-size:0.75rem;">Cost: KSh ${item.buy.toLocaleString()}</span><br>
+                <strong style="color:var(--primary);">Sell: KSh ${item.sell.toLocaleString()}</strong>
+              </div>
+              <div style="text-align:right;">
+                <span style="color:var(--text-muted); font-size:0.75rem;">In Store</span><br>
+                <span class="pc-stock-count">${item.qty}</span> <small>pcs</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="pc-actions">
+            <button class="btn-act btn-sale" onclick="sellItem(${index})">🛒 -1 Sale</button>
+            <button class="btn-act btn-restock" onclick="restockItem(${index})">📦 +1 Stock</button>
+            <button class="btn-act btn-del" onclick="deleteItem(${index})">🗑️</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('total-items').innerText = totalItems;
+      document.getElementById('total-val').innerText = `KSh ${totalValue.toLocaleString()}`;
+      document.getElementById('total-profit').innerText = `KSh ${totalSalesProfit.toLocaleString()}`;
+      document.getElementById('low-stock-count').innerText = lowStockCount;
+
+      localStorage.setItem('kitchen_inv_v3', JSON.stringify(inventory));
+      localStorage.setItem('kitchen_profit_v3', totalSalesProfit);
+    }
+
+    function addProduct(e) {
+      e.preventDefault();
+      const newItem = {
+        id: Date.now(),
+        name: document.getElementById('p-name').value,
+        category: document.getElementById('p-category').value,
+        buy: parseFloat(document.getElementById('p-buy').value),
+        sell: parseFloat(document.getElementById('p-sell').value),
+        qty: parseInt(document.getElementById('p-qty').value),
+        reorder: parseInt(document.getElementById('p-reorder').value)
+      };
+
+      inventory.push(newItem);
+      renderInventory();
+      document.getElementById('product-form').reset();
+    }
+
+    function sellItem(index) {
+      if (inventory[index].qty > 0) {
+        inventory[index].qty -= 1;
+        totalSalesProfit += (inventory[index].sell - inventory[index].buy);
+        renderInventory();
+      } else {
+        alert("Product is out of stock!");
+      }
+    }
+
+    function restockItem(index) {
+      inventory[index].qty += 1;
+      renderInventory();
+    }
+
+    function deleteItem(index) {
+      if (confirm(`Are you sure you want to delete "${inventory[index].name}"?`)) {
+        inventory.splice(index, 1);
+        renderInventory();
+      }
+    }
+
+    function resetProfit() {
+      if (confirm("Reset recorded profit to KSh 0?")) {
+        totalSalesProfit = 0;
+        renderInventory();
+      }
+    }
+
+    renderInventory();
+  </script>
+</body>
+</html>
